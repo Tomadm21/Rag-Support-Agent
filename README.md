@@ -144,7 +144,7 @@ flowchart TD
 ## 🎬 Features in Action
 
 ### 📺 Demo Video
-<video src="./assets/casestudy-1.mp4" width="100%" controls></video>
+<video src="https://raw.githubusercontent.com/Tomadm21/Rag-Support-Agent/main/assets/casestudy-1.mp4" width="100%" controls></video>
 
 <table>
 <tr>
