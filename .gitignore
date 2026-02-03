@@ -18,7 +18,13 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Logs
+*.log
+
 # Distribution
 dist/
 build/
 *.egg-info/
+# AI Agent artifacts
+.agent/
+.claude/

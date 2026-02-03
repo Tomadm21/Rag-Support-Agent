@@ -4,10 +4,11 @@ import json
 import asyncio
 from typing import Optional, List, Dict, Any
 
-# Add backend directory to path for imports
-backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if backend_dir not in sys.path:
-    sys.path.insert(0, backend_dir)
+# Add backend directory to path for imports if running as a script
+if __name__ == "__main__" or "uvicorn" in sys.argv[0]:
+    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if backend_dir not in sys.path:
+        sys.path.insert(0, backend_dir)
 
 from dotenv import load_dotenv
 import weaviate
@@ -128,7 +129,7 @@ async def generate_stream_response(messages: List[Message], selected_sources: Op
         yield "data: [DONE]\n\n"
 
 
-@app.post("/copilot")
+@app.post("/api/copilot")
 async def chat_completion(request: ChatRequest):
     """OpenAI-compatible chat completion endpoint for CopilotKit."""
 
@@ -165,7 +166,11 @@ async def chat_completion(request: ChatRequest):
         }
 
         config = {"configurable": {"thread_id": "chat-thread"}}
-        result = await graph.ainvoke(initial_state, config)
+        try:
+            result = await graph.ainvoke(initial_state, config)
+        except Exception as e:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=500, detail=f"Error generating response: {str(e)}")
 
         # Return structured response with metadata
         return {
@@ -192,7 +197,7 @@ async def chat_completion(request: ChatRequest):
         }
 
 
-@app.get("/sources")
+@app.get("/api/sources")
 async def get_available_sources():
     """Get all available RAG sources from knowledge base."""
     try:
@@ -248,7 +253,7 @@ async def get_available_sources():
         return {"sources": [], "error": str(e)}
 
 
-@app.post("/suggest-sources")
+@app.post("/api/suggest-sources")
 async def suggest_sources(request: ChatRequest):
     """Suggest best RAG sources for a query without generating draft."""
     try:
